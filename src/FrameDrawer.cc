@@ -27,6 +27,8 @@
 namespace ORB_SLAM3
 {
 
+using namespace std;
+
 FrameDrawer::FrameDrawer(Atlas* pAtlas):both(false),mpAtlas(pAtlas)
 {
     mState=Tracking::SYSTEM_NOT_READY;

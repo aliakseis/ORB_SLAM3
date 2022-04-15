@@ -36,6 +36,8 @@
 namespace ORB_SLAM3
 {
 
+using namespace std;
+
 Verbose::eLevel Verbose::th = Verbose::VERBOSITY_NORMAL;
 
 System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor,
@@ -116,7 +118,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
         mpVocabulary = new ORBVocabulary();
         bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
-        if(!bVocLoad)
+        if (!bVocLoad)
         {
             cerr << "Wrong path to vocabulary. " << endl;
             cerr << "Falied to open at: " << strVocFile << endl;
@@ -138,7 +140,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
         mpVocabulary = new ORBVocabulary();
         bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
-        if(!bVocLoad)
+        if (!bVocLoad)
         {
             cerr << "Wrong path to vocabulary. " << endl;
             cerr << "Falied to open at: " << strVocFile << endl;
@@ -1547,3 +1549,8 @@ string System::CalculateCheckSum(string filename, int type)
 
 } //namespace ORB_SLAM
 
+int usleep(unsigned int usec)
+{
+    std::this_thread::sleep_for(std::chrono::microseconds(usec));
+    return 0;
+}

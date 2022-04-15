@@ -12,21 +12,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall   -O3")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -march=native")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
 
-# Check C++11 or C++0x support
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-   add_definitions(-DCOMPILEDWITHC11)
-   message(STATUS "Using flag -std=c++11.")
-elseif(COMPILER_SUPPORTS_CXX0X)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-   add_definitions(-DCOMPILEDWITHC0X)
-   message(STATUS "Using flag -std=c++0x.")
-else()
-   message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-endif()
+add_definitions(-DCOMPILEDWITHC11)
+
+if (MSVC)
+  add_definitions(/bigobj)
+#else ()
+#  add_definitions(-Wa,-mbig-obj)
+endif ()
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
@@ -47,13 +39,14 @@ ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/include
 ${PROJECT_SOURCE_DIR}/include/CameraModels
 ${PROJECT_SOURCE_DIR}/Thirdparty/Sophus
+${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME} STATIC
 src/System.cc
 src/Tracking.cc
 src/LocalMapping.cc
@@ -113,17 +106,60 @@ include/SerializationUtils.h
 include/Config.h
 include/Settings.h)
 
-add_subdirectory(Thirdparty/g2o)
+#add_subdirectory(Thirdparty/g2o)
+
+add_subdirectory(Thirdparty/DBoW2)
+
+find_package(Boost REQUIRED serialization)
+
+find_package(g2o CONFIG REQUIRED)
+#find_package(DBoW2 CONFIG REQUIRED)
+
+find_package(Eigen3 REQUIRED)
+
+find_package(OpenSSL REQUIRED)
 
 target_link_libraries(${PROJECT_NAME}
+${Boost_LIBRARIES}
 ${OpenCV_LIBS}
 ${EIGEN3_LIBS}
 ${Pangolin_LIBRARIES}
-${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
-${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
--lboost_serialization
--lcrypto
+#${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
+#${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
+#DBoW2 g2o
+DBoW2
+#${DBoW2_LIBRARY}
+OpenSSL::Crypto
+#${g2o_LIBS}
+#g2o::core g2o::stuff g2o::types_icp g2o::types_sb
+#-lboost_serialization
+#-lcrypto
 )
+
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+g2o::core
+g2o::csparse_extension
+#g2o::ext_freeglut_minimal
+g2o::opengl_helper   
+g2o::solver_cholmod                
+g2o::solver_csparse        
+g2o::solver_dense          
+g2o::solver_eigen          
+g2o::solver_pcg            
+g2o::solver_slam2d_linear   
+g2o::solver_structure_only    
+g2o::stuff                     
+g2o::types_data                 
+g2o::types_icp                  
+g2o::types_sba                  
+g2o::types_sclam2d                
+g2o::types_sim3                  
+g2o::types_slam2d                
+g2o::types_slam2d_addons             
+g2o::types_slam3d                       
+g2o::types_slam3d_addons       
+)
+
 
 # If RealSense SDK is found the library is added and its examples compiled
 if(realsense2_FOUND)

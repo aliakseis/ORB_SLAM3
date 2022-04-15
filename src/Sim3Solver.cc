@@ -21,16 +21,18 @@
 
 #include <vector>
 #include <cmath>
+#include <random>
 #include <opencv2/core/core.hpp>
 
 #include "KeyFrame.h"
 #include "ORBmatcher.h"
 
-#include "Thirdparty/DBoW2/DUtils/Random.h"
+//#include "Thirdparty/DBoW2/DUtils/Random.h"
 
 namespace ORB_SLAM3
 {
 
+using namespace std;
 
 Sim3Solver::Sim3Solver(KeyFrame *pKF1, KeyFrame *pKF2, const vector<MapPoint *> &vpMatched12, const bool bFixScale,
                        vector<KeyFrame*> vpKeyFrameMatchedMP):
@@ -163,6 +165,7 @@ Eigen::Matrix4f Sim3Solver::iterate(int nIterations, bool &bNoMore, vector<bool>
     Eigen::Matrix3f P3Dc1i;
     Eigen::Matrix3f P3Dc2i;
 
+    std::default_random_engine dre;
     int nCurrentIterations = 0;
     while(mnIterations<mRansacMaxIts && nCurrentIterations<nIterations)
     {
@@ -170,12 +173,12 @@ Eigen::Matrix4f Sim3Solver::iterate(int nIterations, bool &bNoMore, vector<bool>
         mnIterations++;
 
         vAvailableIndices = mvAllIndices;
-
+        std::uniform_int_distribution<int> di(0, vAvailableIndices.size() - 1);
         // Get min set of points
         for(short i = 0; i < 3; ++i)
         {
-            int randi = DUtils::Random::RandomInt(0, vAvailableIndices.size()-1);
-
+            //int randi = DUtils::Random::RandomInt(0, vAvailableIndices.size()-1);
+            int randi = di(dre);
             int idx = vAvailableIndices[randi];
 
             P3Dc1i.col(i) = mvX3Dc1[idx];
@@ -237,6 +240,8 @@ Eigen::Matrix4f Sim3Solver::iterate(int nIterations, bool &bNoMore, vector<bool>
 
     Eigen::Matrix4f bestSim3;
 
+    std::default_random_engine dre;
+
     while(mnIterations<mRansacMaxIts && nCurrentIterations<nIterations)
     {
         nCurrentIterations++;
@@ -244,10 +249,12 @@ Eigen::Matrix4f Sim3Solver::iterate(int nIterations, bool &bNoMore, vector<bool>
 
         vAvailableIndices = mvAllIndices;
 
+        std::uniform_int_distribution<int> di(0, vAvailableIndices.size() - 1);
         // Get min set of points
         for(short i = 0; i < 3; ++i)
         {
-            int randi = DUtils::Random::RandomInt(0, vAvailableIndices.size()-1);
+            //int randi = DUtils::Random::RandomInt(0, vAvailableIndices.size()-1);
+            int randi = di(dre);
 
             int idx = vAvailableIndices[randi];
 

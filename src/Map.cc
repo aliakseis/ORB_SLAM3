@@ -24,6 +24,8 @@
 namespace ORB_SLAM3
 {
 
+using namespace std;
+
 long unsigned int Map::nNextId=0;
 
 Map::Map():mnMaxKFid(0),mnBigChangeIdx(0), mbImuInitialized(false), mnMapChange(0), mpFirstRegionKF(static_cast<KeyFrame*>(NULL)),

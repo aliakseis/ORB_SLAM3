@@ -33,6 +33,8 @@
 namespace ORB_SLAM3
 {
 
+using namespace std;
+
 long unsigned int Frame::nNextId=0;
 bool Frame::mbInitialComputations=true;
 float Frame::cx, Frame::cy, Frame::fx, Frame::fy, Frame::invfx, Frame::invfy;

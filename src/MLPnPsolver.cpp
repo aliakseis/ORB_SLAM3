@@ -50,8 +50,13 @@
 
 #include <Eigen/Sparse>
 
+#include <random>
 
 namespace ORB_SLAM3 {
+
+    using namespace std;
+
+
     MLPnPsolver::MLPnPsolver(const Frame &F, const vector<MapPoint *> &vpMapPointMatches):
             mnInliersi(0), mnIterations(0), mnBestInliers(0), N(0), mpCamera(F.mpCamera){
         mvpMapPointMatches = vpMapPointMatches;
@@ -111,6 +116,8 @@ namespace ORB_SLAM3 {
 
 	    vector<size_t> vAvailableIndices;
 
+        std::default_random_engine dre;
+
 	    int nCurrentIterations = 0;
 	    while(mnIterations<mRansacMaxIts || nCurrentIterations<nIterations)
 	    {
@@ -124,10 +131,13 @@ namespace ORB_SLAM3 {
             points_t p3DS(mRansacMinSet);
             vector<int> indexes(mRansacMinSet);
 
+            std::uniform_int_distribution<int> di(0, vAvailableIndices.size() - 1);
+
 	        // Get min set of points
 	        for(short i = 0; i < mRansacMinSet; ++i)
 	        {
-	            int randi = DUtils::Random::RandomInt(0, vAvailableIndices.size()-1);
+	            //int randi = DUtils::Random::RandomInt(0, vAvailableIndices.size()-1);
+                int randi = di(dre);
 
 	            int idx = vAvailableIndices[randi];
 

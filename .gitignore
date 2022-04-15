@@ -91,3 +91,12 @@ my_settings.txt
 borrar/*
 
 */ExecMean.txt
+
+bin/
+build/
+Debug/
+Release/
+RelWithDebInfo/
+
+*.tmp
+
